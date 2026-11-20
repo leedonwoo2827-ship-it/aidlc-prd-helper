@@ -9,9 +9,10 @@
 API 키나 AWS 계정 없이, PC에 **로그인된 Claude Code CLI 또는 Codex CLI**의 구독(OAuth)으로 AI 코치를 실행합니다.
 
 1. 준비: Node.js 22 이상, 그리고 둘 중 하나
-   - Claude Code: `npm install -g @anthropic-ai/claude-code` → `claude` 실행 후 `/login`
-   - Codex: `npm install -g @openai/codex` → `codex login`
-2. `setup.bat` 더블클릭 → 패키지 설치, 코치(1=Claude, 2=Codex)·포트(기본 4319) 선택 → `.env` 생성
+   - Claude Code: `npm install -g @anthropic-ai/claude-code`
+   - Codex: `npm install -g @openai/codex`
+   - 로그인은 웹 화면 오른쪽 위 **로그인** 버튼으로 합니다 (새로고침·로그아웃 버튼도 있음)
+2. `setup.bat` 더블클릭 → 입력 없이 자동 진행: 패키지 설치, 설치된 CLI 감지(Claude 우선), `.env` 생성(포트 4319, 이미 있으면 유지)
 3. `run.bat` 더블클릭 → 브라우저가 <http://127.0.0.1:4319/> 로 열림 (`localhost`가 아니라 `127.0.0.1`로 접속해야 합니다)
 
 설정은 `.env`의 `COACH_PROVIDER`(`claude` | `codex` | `bedrock`), `COACH_MODEL`(선택, Claude 기본 `sonnet`), `PORT`로 바꿀 수 있습니다. 답변 한 번에 CLI를 한 번 호출하며 10초 안팎이 걸리고, 마지막 PRD 생성 단계는 더 오래 걸립니다.
