@@ -9,6 +9,7 @@ import { AppError, validateText, validateCoach, validateProductDoc, publicSessio
 import { createBedrockCoach } from './bedrock.mjs';
 import { localConfig } from './config.mjs';
 import { createCliCoach, CLI_LABELS } from './cli-coach.mjs';
+import { createCliAuth } from './cli-auth.mjs';
 
 const root = fileURLToPath(new URL('../public/', import.meta.url));
 const hash = value => createHash('sha256').update(value).digest();
@@ -17,7 +18,7 @@ const MAX_SESSIONS = 500;
 const MAX_ATTEMPTS = 40;
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 
-export function createApp({ bedrockEnabled = false, coach, modelLabel = 'Bedrock', now = Date.now } = {}) {
+export function createApp({ bedrockEnabled = false, coach, modelLabel = 'Bedrock', cliAuth = null, now = Date.now } = {}) {
   const sessions = new Map();
   let activeModelCalls = 0;
   const clean = () => {
@@ -64,7 +65,17 @@ export function createApp({ bedrockEnabled = false, coach, modelLabel = 'Bedrock
       if (req.headers['sec-fetch-site'] === 'cross-site') throw new AppError(403, 'CROSS_SITE', '교차 사이트 요청을 허용하지 않습니다.');
       const url = new URL(req.url, expectedOrigin);
       if (url.pathname === '/api/config' && req.method === 'GET')
-        return send(res, 200, { local: true, bedrockEnabled, model: bedrockEnabled ? modelLabel : null, persistence: 'memory', sessionTtlHours: 4 });
+        return send(res, 200, { local: true, bedrockEnabled, model: bedrockEnabled ? modelLabel : null, persistence: 'memory', sessionTtlHours: 4, cliAuth: cliAuth?.provider ?? null });
+      if (cliAuth && url.pathname.startsWith('/api/auth/')) {
+        const action = url.pathname.slice('/api/auth/'.length);
+        if (action === 'status' && req.method === 'GET') return send(res, 200, { provider: cliAuth.provider, ...(await cliAuth.status()), login: cliAuth.view() });
+        if (req.method !== 'POST') throw new AppError(405, 'METHOD_NOT_ALLOWED', '지원하지 않는 요청입니다.');
+        const input = await body(req);
+        if (action === 'login') return send(res, 200, { login: await cliAuth.login() });
+        if (action === 'code') return send(res, 200, { login: await cliAuth.submitCode(input.code) });
+        if (action === 'cancel') { cliAuth.cancel(); return send(res, 200, { login: cliAuth.view() }); }
+        if (action === 'logout') return send(res, 200, await cliAuth.logout());
+      }
       if (url.pathname === '/api/sessions' && req.method === 'POST') {
         const input = await body(req);
         clean();
@@ -184,7 +195,7 @@ export function createApp({ bedrockEnabled = false, coach, modelLabel = 'Bedrock
   });
   const cleanup = setInterval(clean, 30000);
   cleanup.unref();
-  server.on('close', () => { clearInterval(cleanup); sessions.clear(); });
+  server.on('close', () => { clearInterval(cleanup); sessions.clear(); cliAuth?.cancel(); });
   return { server };
 }
 
@@ -193,7 +204,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const cli = provider === 'claude' || provider === 'codex';
   const modelLabel = cli ? CLI_LABELS[provider] : localConfig().modelLabel;
   const { server } = createApp({
-    bedrockEnabled, modelLabel,
+    bedrockEnabled, modelLabel, cliAuth: cli ? createCliAuth(provider) : null,
     coach: cli ? createCliCoach({ provider, model: modelId }) : bedrockEnabled ? createBedrockCoach({ region, modelId }) : undefined
   });
   server.listen(port, '127.0.0.1', () => console.log(`AI-DLC PRD Studio · http://127.0.0.1:${port} · Coach: ${bedrockEnabled ? modelLabel : 'disabled'}`));

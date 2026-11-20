@@ -1,6 +1,7 @@
 import { STEPS, EXAMPLES, EXAMPLE_ANSWERS, draftMarkdown, sectionsFromAnswers } from './shared.js';
 import { CONTRACT_MARKDOWN, enforceWorkshopContract } from './workshop.js';
 import { configureAuth, authHeaders, payloadHeaders, handleAuthError } from './auth.js';
+import { initCliAuth } from './cli-auth.js';
 const $ = (s, parent = document) => parent.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const icons = {
@@ -361,4 +362,5 @@ try {
   });
   $('#coach-status').textContent = config.bedrockEnabled ? `${modelLabel()} · 사용 설정됨` : 'Bedrock 연결이 필요해요';
   if (!config.bedrockEnabled) showError('진행자에게 Bedrock 연결 상태를 확인해 주세요.');
+  if (config.cliAuth) initCliAuth(config);
 } catch { showError('로컬 서버에 연결하지 못했어요. 서버를 실행한 뒤 새로고침해 주세요.'); }

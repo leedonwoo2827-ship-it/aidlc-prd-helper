@@ -86,7 +86,7 @@ export function createCliCoach({ provider, model = '' }) {
       }
     } catch (error) {
       console.error(JSON.stringify({ event: 'cli_coach_error', provider, message: String(error.message).slice(0, 800) }));
-      throw new AppError(502, 'MODEL_ERROR', 'AI 응답을 받지 못했어요. 입력을 유지했으니 다시 보내 주세요. CLI 로그인 상태를 확인해 주세요.');
+      throw new AppError(502, 'MODEL_ERROR', 'AI 응답을 받지 못했어요. 입력을 유지했으니 다시 보내 주세요. 화면 위쪽에서 로그인 상태를 확인해 주세요.');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
