@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.local/
+config/deployment.json
+config/outputs.json
+*.log
+*.zip
+__pycache__/
+.DS_Store
+_prd-cde/

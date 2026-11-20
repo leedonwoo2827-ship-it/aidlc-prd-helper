@@ -1,0 +1,27 @@
+{
+  "name": "aidlc-prd-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "probe:bedrock": "node --env-file-if-exists=.env scripts/probe-bedrock.mjs",
+    "test:live": "node --env-file-if-exists=.env scripts/verify-live.mjs",
+    "verify:handoff": "node scripts/verify-handoff.mjs",
+    "package:handoff": "python3 scripts/package-handoff.py"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@aws-sdk/client-cloudformation": "^3.1168.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1168.0",
+    "@aws-sdk/client-dynamodb": "^3.1168.0",
+    "@aws-sdk/client-scheduler": "^3.1168.0",
+    "@aws-sdk/lib-dynamodb": "^3.1168.0",
+    "aws-jwt-verify": "^5.2.1"
+  }
+}

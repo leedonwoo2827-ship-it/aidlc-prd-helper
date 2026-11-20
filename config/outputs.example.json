@@ -1,0 +1,12 @@
+{
+  "SiteUrl": "",
+  "DistributionId": "",
+  "BucketName": "",
+  "FunctionName": "",
+  "FunctionArn": "",
+  "FunctionUrl": "",
+  "TableName": "",
+  "UserPoolId": "",
+  "ClientId": "",
+  "ExpiryRoleArn": ""
+}
