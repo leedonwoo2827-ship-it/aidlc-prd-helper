@@ -50,11 +50,6 @@ if "!PORT!"=="" set PORT=4319
 
 echo.
 echo [3/3] .env 작성
-if exist .env (
-  set OW=
-  set /p OW=기존 .env 가 있습니다. 덮어쓸까요? [y/N]:
-  if /i not "!OW!"=="y" goto login
-)
 > .env echo PORT=!PORT!
 >> .env echo COACH_PROVIDER=!PROVIDER!
 >> .env echo COACH_MODEL=
